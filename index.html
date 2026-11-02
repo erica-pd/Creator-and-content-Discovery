@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prompt Box Component - Dash Social GDS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-page: #f9fbff;
+    --bg-default: #fff;
+    --bg-utility: #e8ecf4;
+    --bg-action: #000;
+    --border-light: #e8ecf4;
+    --text-primary: #000;
+    --text-subtle: #686a7a;
+    --text-knockout: #fff;
+    --vision-ai: #693abb;
+    --rounded-sm: 10px;
+    --rounded-md: 20px;
+    --rounded-lg: 30px;
+    --rounded-full: 9999px;
+    --shadow-a04: rgba(45,69,104,0.04);
+    --shadow-a15: rgba(45,69,104,0.15);
+  }
+
+  *, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    font-feature-settings: 'cv13' 1, 'cv12' 1, 'cv11' 1, 'cv01' 1;
+    background: var(--bg-page);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 24px;
+  }
+
+  /* Outer container */
+  .prompt-box-wrapper {
+    background: var(--bg-default);
+    border: 1px solid var(--border-light);
+    border-radius: var(--rounded-md);
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    max-width: 1008px;
+    width: 100%;
+    box-shadow:
+      0px 2px 4px 0px var(--shadow-a04),
+      -4px 8px 16px -8px var(--shadow-a15),
+      4px 8px 16px -8px var(--shadow-a15);
+  }
+
+  /* Header row */
+  .header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .header-icon {
+    width: 28px;
+    height: 28px;
+    color: var(--vision-ai);
+    flex-shrink: 0;
+  }
+
+  h2.header-heading {
+    font-size: 24px;
+    font-weight: 500;
+    line-height: 28px;
+    color: var(--text-primary);
+  }
+
+  .vision-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: var(--vision-ai);
+    border-radius: var(--rounded-full);
+    height: 24px;
+    padding: 0 8px;
+    flex-shrink: 0;
+  }
+
+  .vision-chip-icon {
+    width: 14px;
+    height: 14px;
+    color: var(--text-knockout);
+    flex-shrink: 0;
+  }
+
+  .vision-chip-text {
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--text-knockout);
+    white-space: nowrap;
+  }
+
+  /* Widget section */
+  .widget-section {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  /* Tabs */
+  .tabs-container {
+    display: inline-flex;
+    gap: 4px;
+    background: var(--bg-default);
+    border: 1px solid var(--border-light);
+    border-radius: var(--rounded-full);
+    padding: 4px;
+    align-self: flex-start;
+  }
+
+  .tab {
+    height: 32px;
+    padding: 0 8px;
+    border-radius: var(--rounded-full);
+    font-size: 12px;
+    font-weight: 400;
+    border: none;
+    cursor: pointer;
+    background: transparent;
+    color: var(--text-subtle);
+    font-family: 'Inter', sans-serif;
+    font-feature-settings: 'cv13' 1, 'cv12' 1, 'cv11' 1, 'cv01' 1;
+    transition: background 0.15s, color 0.15s;
+    display: flex;
+    align-items: center;
+  }
+
+  .tab.active {
+    background: var(--bg-utility);
+    color: var(--text-primary);
+  }
+
+  .tab:not(.active):hover {
+    background: rgba(232, 236, 244, 0.5);
+  }
+
+  /* Inner prompt box */
+  .prompt-box-inner {
+    background: var(--bg-default);
+    border: 1px solid var(--border-light);
+    border-radius: var(--rounded-md);
+  }
+
+  .prompt-box-content {
+    background: var(--bg-default);
+    border-radius: var(--rounded-md);
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    min-height: 128px;
+    height: 166px;
+    max-height: 296px;
+  }
+
+  /* Text area */
+  .text-area {
+    flex: 1;
+    min-height: 16px;
+    font-size: 12px;
+    font-family: 'Inter', sans-serif;
+    font-feature-settings: 'cv13' 1, 'cv12' 1, 'cv11' 1, 'cv01' 1;
+    color: var(--text-primary);
+    outline: none;
+    overflow-y: auto;
+    line-height: 1.5;
+    word-break: break-word;
+  }
+
+  .text-area:empty::before {
+    content: attr(data-placeholder);
+    color: var(--text-subtle);
+    pointer-events: none;
+  }
+
+  /* Uploaded image — GDS Simple Media Thumbnail (Size=S, 48–103px) */
+  .image-preview-container {
+    display: none;
+    position: relative;
+    width: 56px;
+    height: 56px;
+    flex-shrink: 0;
+    cursor: pointer;
+    isolation: isolate;
+  }
+
+  .image-preview-container.visible {
+    display: block;
+  }
+
+  /* _Object Thumbnail: rounded-sm-md (16px), overflow clip */
+  .image-thumbnail {
+    position: relative;
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
+    overflow: hidden;
+    z-index: 1;
+  }
+
+  /* Base thumbnail image: object-cover */
+  .image-preview {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  /* GDS Hover Backdrop Blur: backdrop-blur-md (25px), color-backdrop-blur-media-card */
+  .image-hover-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(45, 69, 104, 0.25);
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out;
+    pointer-events: none;
+  }
+
+  /* GDS Hover Thumbnail: object-contain (fitted view on hover) */
+  .image-hover-thumbnail {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out;
+    pointer-events: none;
+  }
+
+  .image-preview-container:hover .image-hover-overlay,
+  .image-preview-container:hover .image-hover-thumbnail {
+    opacity: 1;
+  }
+
+  /* GDS Extra Small Icon Button — remove: white bg, 1px border-danger (#d32f2f), top-right -4px */
+  .image-delete-btn {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    width: 24px;
+    height: 24px;
+    border-radius: var(--rounded-full);
+    background: var(--bg-default);
+    border: 1px solid #d32f2f;
+    color: #d32f2f;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    padding: 0;
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out;
+    z-index: 2;
+  }
+
+  .image-preview-container:hover .image-delete-btn {
+    opacity: 1;
+  }
+
+  .image-delete-btn:hover {
+    background: #fef2f2;
+  }
+
+  /* Bottom bar */
+  .bottom-bar {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+  }
+
+  .upload-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--rounded-full);
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: background 0.15s;
+  }
+
+  .upload-btn:hover:not(.disabled) {
+    background: var(--bg-utility);
+  }
+
+  .upload-btn.disabled {
+    opacity: 0.3;
+    cursor: default;
+    pointer-events: none;
+  }
+
+  .upload-btn svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .canned-prompts {
+    display: flex;
+    gap: 8px;
+    overflow: hidden;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .canned-pill {
+    background: var(--bg-utility);
+    height: 32px;
+    padding: 0 16px;
+    border-radius: var(--rounded-full);
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-primary);
+    border: none;
+    cursor: pointer;
+    white-space: nowrap;
+    font-family: 'Inter', sans-serif;
+    font-feature-settings: 'cv13' 1, 'cv12' 1, 'cv11' 1, 'cv01' 1;
+    display: flex;
+    align-items: center;
+    transition: background 0.15s;
+    flex-shrink: 0;
+  }
+
+  .canned-pill:hover {
+    background: #dce1eb;
+  }
+
+  .action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--vision-ai);
+    height: 32px;
+    padding: 0 16px;
+    border-radius: var(--rounded-full);
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-knockout);
+    border: none;
+    cursor: default;
+    opacity: 0.3;
+    white-space: nowrap;
+    font-family: 'Inter', sans-serif;
+    font-feature-settings: 'cv13' 1, 'cv12' 1, 'cv11' 1, 'cv01' 1;
+    transition: opacity 0.15s;
+    flex-shrink: 0;
+  }
+
+  .action-btn.active {
+    opacity: 1;
+    cursor: pointer;
+  }
+
+  .action-btn.active:hover {
+    opacity: 0.85;
+  }
+
+  .action-btn svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  /* Hidden file input */
+  .file-input {
+    display: none;
+  }
+</style>
+</head>
+<body>
+
+<div class="prompt-box-wrapper">
+  <!-- Header row -->
+  <div class="header-row">
+    <div class="header-left">
+      <svg class="header-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path fill-rule="evenodd" clip-rule="evenodd" d="M12 23C18.0751 23 23 18.0751 23 12C23 5.92487 18.0751 1 12 1C5.92487 1 1 5.92487 1 12C1 18.0751 5.92487 23 12 23ZM12.0001 20.3274C16.5993 20.3274 20.3276 16.5991 20.3276 11.9999C20.3276 7.4008 16.5993 3.67247 12.0001 3.67247C7.401 3.67247 3.67267 7.4008 3.67267 11.9999C3.67267 16.5991 7.401 20.3274 12.0001 20.3274Z" fill="currentColor"/>
+        <path d="M17.5429 10.0147L14.8147 11.019L13.8029 13.74L12.7967 11.0169L10.0706 10.0069L12.7988 9.00264L13.8106 6.28157L14.8168 9.00473L17.5429 10.0147Z" fill="currentColor"/>
+      </svg>
+      <h2 class="header-heading" id="heading">Discover Creators</h2>
+    </div>
+    <div class="vision-chip">
+      <svg class="vision-chip-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path fill-rule="evenodd" clip-rule="evenodd" d="M12 23C18.0751 23 23 18.0751 23 12C23 5.92487 18.0751 1 12 1C5.92487 1 1 5.92487 1 12C1 18.0751 5.92487 23 12 23ZM12.0001 20.3274C16.5993 20.3274 20.3276 16.5991 20.3276 11.9999C20.3276 7.4008 16.5993 3.67247 12.0001 3.67247C7.401 3.67247 3.67267 7.4008 3.67267 11.9999C3.67267 16.5991 7.401 20.3274 12.0001 20.3274Z" fill="currentColor"/>
+        <path d="M17.5429 10.0147L14.8147 11.019L13.8029 13.74L12.7967 11.0169L10.0706 10.0069L12.7988 9.00264L13.8106 6.28157L14.8168 9.00473L17.5429 10.0147Z" fill="currentColor"/>
+      </svg>
+      <span class="vision-chip-text">Vision AI</span>
+    </div>
+  </div>
+
+  <!-- Widget section -->
+  <div class="widget-section">
+    <!-- Tabs -->
+    <div class="tabs-container">
+      <button class="tab active" data-tab="creator">Creator</button>
+      <button class="tab" data-tab="content">Content</button>
+    </div>
+
+    <!-- Inner prompt box -->
+    <div class="prompt-box-inner">
+      <div class="prompt-box-content">
+        <!-- Text area -->
+        <div
+          class="text-area"
+          id="textArea"
+          contenteditable="true"
+          data-placeholder="Search for exact @handles or describe what you're looking for like audience demographics, location, reel engagement rate, etc...."
+        ></div>
+
+        <!-- Uploaded image preview -->
+        <div class="image-preview-container" id="imagePreviewContainer">
+          <!-- GDS Extra Small Icon Button: remove -->
+          <button class="image-delete-btn" id="imageDeleteBtn" aria-label="Remove image">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M2.5 6H9.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </button>
+          <!-- GDS _Object Thumbnail -->
+          <div class="image-thumbnail">
+            <img class="image-preview" id="imagePreview" src="" alt="Uploaded image">
+            <div class="image-hover-overlay"></div>
+            <img class="image-hover-thumbnail" id="imageHoverThumbnail" src="" alt="">
+          </div>
+        </div>
+
+        <!-- Bottom bar -->
+        <div class="bottom-bar">
+          <!-- Upload button -->
+          <button class="upload-btn" id="uploadBtn" aria-label="Upload image">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path fill-rule="evenodd" clip-rule="evenodd" d="M5.17245 1.33325H10.8275C11.3642 1.33324 11.8071 1.33324 12.1679 1.36271C12.5426 1.39333 12.8871 1.45904 13.2106 1.6239C13.7124 1.87956 14.1203 2.28751 14.376 2.78928C14.5409 3.11283 14.6066 3.4573 14.6372 3.83204C14.6667 4.19283 14.6667 4.63573 14.6666 5.17237V10.8275C14.6667 11.3641 14.6667 11.807 14.6372 12.1678C14.6066 12.5425 14.5409 12.887 14.376 13.2106C14.1203 13.7123 13.7124 14.1203 13.2106 14.3759C12.8871 14.5408 12.5426 14.6065 12.1679 14.6371C11.8071 14.6666 11.3642 14.6666 10.8275 14.6666H5.17243C5.15635 14.6666 5.14035 14.6666 5.12444 14.6666L4.59609 14.6666C4.41583 14.6666 4.23865 14.6666 4.096 14.654C4.09067 14.6535 4.0851 14.653 4.07931 14.6525C3.99294 14.6486 3.91058 14.6435 3.8321 14.6371C3.45736 14.6065 3.1129 14.5408 2.78934 14.3759C2.28757 14.1203 1.87963 13.7123 1.62396 13.2106C1.4591 12.887 1.39339 12.5425 1.36278 12.1678C1.3333 11.807 1.3333 11.3641 1.33331 10.8275V5.17239C1.3333 4.63574 1.3333 4.19283 1.36278 3.83204C1.39339 3.4573 1.4591 3.11283 1.62396 2.78928C1.87963 2.28751 2.28757 1.87956 2.78934 1.6239C3.1129 1.45904 3.45737 1.39333 3.8321 1.36271C4.19289 1.33324 4.6358 1.33324 5.17245 1.33325ZM5.19998 13.3333C5.10986 13.3333 5.0243 13.3332 4.94292 13.3331L10.3838 7.89224C10.5236 7.75245 10.6004 7.67633 10.6599 7.62587C10.6623 7.62386 10.6645 7.62196 10.6666 7.62019C10.6688 7.62196 10.671 7.62385 10.6734 7.62586C10.7329 7.67633 10.8097 7.75245 10.9495 7.89224L13.3333 10.2761V10.7999C13.3333 11.371 13.3328 11.7592 13.3083 12.0592C13.2844 12.3515 13.2411 12.501 13.188 12.6052C13.0602 12.8561 12.8562 13.0601 12.6053 13.1879C12.501 13.2411 12.3516 13.2843 12.0593 13.3082C11.7592 13.3327 11.371 13.3333 10.8 13.3333H5.19998ZM13.3333 8.39044L11.8773 6.93441C11.7583 6.81541 11.6425 6.69953 11.5363 6.60941C11.4197 6.51046 11.2718 6.40408 11.0787 6.34132C10.8109 6.25431 10.5224 6.25431 10.2546 6.34132C10.0615 6.40408 9.91355 6.51046 9.79699 6.60941C9.69084 6.69952 9.57499 6.81541 9.45603 6.9344L3.75483 12.6356C3.62735 12.763 3.50204 12.8883 3.41011 12.9981C3.38172 13.032 3.34346 13.0789 3.30462 13.1376C3.09494 13.0094 2.92414 12.8254 2.81197 12.6052C2.75885 12.501 2.71556 12.3515 2.69168 12.0592C2.66717 11.7592 2.66665 11.371 2.66665 10.7999V5.19992C2.66665 4.62887 2.66717 4.24067 2.69168 3.94061C2.71556 3.64833 2.75885 3.49887 2.81197 3.3946C2.9398 3.14372 3.14378 2.93974 3.39466 2.81191C3.49893 2.75878 3.6484 2.7155 3.94067 2.69162C4.24073 2.6671 4.62893 2.66659 5.19998 2.66659H10.8C11.371 2.66659 11.7592 2.6671 12.0593 2.69162C12.3516 2.7155 12.501 2.75878 12.6053 2.81191C12.8562 2.93974 13.0602 3.14372 13.188 3.3946C13.2411 3.49887 13.2844 3.64833 13.3083 3.94061C13.3328 4.24067 13.3333 4.62887 13.3333 5.19992V8.39044ZM5.66665 4.99992C5.29846 4.99992 4.99998 5.2984 4.99998 5.66659C4.99998 6.03478 5.29846 6.33325 5.66665 6.33325C6.03484 6.33325 6.33331 6.03478 6.33331 5.66659C6.33331 5.2984 6.03484 4.99992 5.66665 4.99992ZM3.66665 5.66659C3.66665 4.56202 4.56208 3.66659 5.66665 3.66659C6.77122 3.66659 7.66665 4.56202 7.66665 5.66659C7.66665 6.77116 6.77122 7.66659 5.66665 7.66659C4.56208 7.66659 3.66665 6.77116 3.66665 5.66659Z" fill="#686A7A"/>
+            </svg>
+          </button>
+
+          <!-- Canned prompts -->
+          <div class="canned-prompts" id="cannedPrompts">
+            <button class="canned-pill">Female talent with high reel interaction</button>
+            <button class="canned-pill">US Creators aged 25-34</button>
+            <button class="canned-pill">High Engagement Creators</button>
+          </div>
+
+          <!-- Action button -->
+          <button class="action-btn" id="actionBtn">
+            <span id="actionBtnText">Explore Creators</span>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path fill-rule="evenodd" clip-rule="evenodd" d="M7.52855 2.86201C7.7889 2.60166 8.21101 2.60166 8.47136 2.86201L13.138 7.52868C13.3984 7.78903 13.3984 8.21114 13.138 8.47149L8.47136 13.1382C8.21101 13.3985 7.7889 13.3985 7.52855 13.1382C7.26821 12.8778 7.26821 12.4557 7.52855 12.1953L11.0572 8.66675H3.33329C2.9651 8.66675 2.66663 8.36827 2.66663 8.00008C2.66663 7.63189 2.9651 7.33342 3.33329 7.33342H11.0572L7.52855 3.80482C7.26821 3.54447 7.26821 3.12236 7.52855 2.86201Z" fill="white"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Hidden file input -->
+<input type="file" class="file-input" id="fileInput" accept="image/*">
+
+<script>
+  const tabData = {
+    creator: {
+      heading: 'Discover Creators',
+      placeholder: 'Search for exact @handles or describe what you\'re looking for like audience demographics, location, reel engagement rate, etc....',
+      prompts: [
+        'Female talent with high reel interaction',
+        'US Creators aged 25-34',
+        'High Engagement Creators'
+      ],
+      button: 'Explore Creators'
+    },
+    content: {
+      heading: 'Discover Content',
+      placeholder: 'Try describing keywords, hashtags, or mentions to discover relevant creator content',
+      prompts: [
+        'Content mentioning my brand in the last 7 days',
+        'Neutral content that mentions my competitor'
+      ],
+      button: 'Explore Content'
+    }
+  };
+
+  const heading = document.getElementById('heading');
+  const textArea = document.getElementById('textArea');
+  const cannedPrompts = document.getElementById('cannedPrompts');
+  const actionBtn = document.getElementById('actionBtn');
+  const actionBtnText = document.getElementById('actionBtnText');
+  const uploadBtn = document.getElementById('uploadBtn');
+  const fileInput = document.getElementById('fileInput');
+  const imagePreviewContainer = document.getElementById('imagePreviewContainer');
+  const imagePreview = document.getElementById('imagePreview');
+  const imageHoverThumbnail = document.getElementById('imageHoverThumbnail');
+  const imageDeleteBtn = document.getElementById('imageDeleteBtn');
+  const tabs = document.querySelectorAll('.tab');
+
+  let currentTab = 'creator';
+
+  function switchTab(tab) {
+    currentTab = tab;
+    const data = tabData[tab];
+
+    // Update tabs
+    tabs.forEach(t => {
+      t.classList.toggle('active', t.dataset.tab === tab);
+    });
+
+    // Update heading
+    heading.textContent = data.heading;
+
+    // Update placeholder (only visible when text area is empty)
+    textArea.setAttribute('data-placeholder', data.placeholder);
+    updateActionButton();
+
+    // Update canned prompts
+    cannedPrompts.innerHTML = '';
+    data.prompts.forEach(prompt => {
+      const pill = document.createElement('button');
+      pill.className = 'canned-pill';
+      pill.textContent = prompt;
+      pill.addEventListener('click', () => fillPrompt(prompt));
+      cannedPrompts.appendChild(pill);
+    });
+
+    // Update button text
+    actionBtnText.textContent = data.button;
+  }
+
+  function fillPrompt(text) {
+    textArea.textContent = text;
+    updateActionButton();
+    textArea.focus();
+    // Move cursor to end
+    const range = document.createRange();
+    const sel = window.getSelection();
+    range.selectNodeContents(textArea);
+    range.collapse(false);
+    sel.removeAllRanges();
+    sel.addRange(range);
+  }
+
+  function updateActionButton() {
+    const hasText = textArea.textContent.trim().length > 0;
+    actionBtn.classList.toggle('active', hasText);
+  }
+
+  // Tab click handlers
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => switchTab(tab.dataset.tab));
+  });
+
+  // Text area input
+  textArea.addEventListener('input', updateActionButton);
+
+  // Upload button
+  uploadBtn.addEventListener('click', () => fileInput.click());
+
+  // File selected
+  fileInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        imagePreview.src = ev.target.result;
+        imageHoverThumbnail.src = ev.target.result;
+        imagePreviewContainer.classList.add('visible');
+        uploadBtn.classList.add('disabled');
+      };
+      reader.readAsDataURL(file);
+    }
+    // Reset so the same file can be re-selected
+    fileInput.value = '';
+  });
+
+  // Delete image
+  imageDeleteBtn.addEventListener('click', () => {
+    imagePreview.src = '';
+    imageHoverThumbnail.src = '';
+    imagePreviewContainer.classList.remove('visible');
+    uploadBtn.classList.remove('disabled');
+  });
+
+  // Initialize canned prompt click handlers
+  document.querySelectorAll('.canned-pill').forEach(pill => {
+    pill.addEventListener('click', () => fillPrompt(pill.textContent));
+  });
+</script>
+
+</body>
+</html>
